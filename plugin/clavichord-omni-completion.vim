@@ -4,9 +4,12 @@
 " License: Gnu GPL v3.
 " 
 " Configuration Variables:
+" ------------------------
+"
 " — g:vichord_use_cfu_setting — whether to use completefunc (^X^U) instead of
 "   omnifunc (^X^O) setting (default: 0), example:
 "       let g:vichord_use_cfu_setting = 1
+"
 " — g:vichord_search_in_let — whether to search for variables in "let …"
 "   statements (slows down a bit, however it allows to complete local variables
 "   even when they're used without the l:… prefix) (default: 0), example:
