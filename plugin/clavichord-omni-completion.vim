@@ -3,6 +3,17 @@
 " Copyright (c) 2020 Sebastian Gniazdowski.
 " License: Gnu GPL v3.
 " 
+" If using an autocomplete plugin and undecided which one to use, then the
+" plugin zphere-zsh/shell-autopop-menu is recommended. It'll integrate nicely
+" with this plugin as it is specifically tested and adapted to work with it.
+" It started as a (fork-based) companion plugin for the Shell omni completion
+" (zphere-zsh/shell-omni-completion), however it works perfectly also with this
+" completion for VimL.
+" 
+" This plugin does no more than setting `omnifunc` (or `completefunc` — see
+" below) set variable, which allows to invoke the completion via Ctrl-X Ctrl-O
+" (or Ctrl-X Ctrl-U).
+" 
 " Configuration Variables:
 " ------------------------
 "
