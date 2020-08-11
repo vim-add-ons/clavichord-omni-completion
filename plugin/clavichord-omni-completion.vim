@@ -53,7 +53,10 @@ endfunction
 " has the main task to perform the omni-completion, i.e.: to return the list of
 " matches to the text before the cursor.
 function VimComplete(findstart, base)
-    "echom "::: COMPLETE ::: findstart:" . a:findstart . ", line: " . getbufline(bufnr(), line("."))[0] .", base: " . a:base
+    let entry_time = reltime()
+    "echoh Constant
+    "echom "::: COMPLETE" a:findstart "::: findstart ←" a:findstart "| line ←" [getline(".")] "| base ←" [a:base]
+    "echoh None
     " Prepare the buffers' contents for processing, if needed (i.e.: on every
     " N-th call, when only also the processing-sequence is being initiated).
     "
@@ -122,12 +125,15 @@ function VimComplete(findstart, base)
                     \ b:vichord_compl_parameters_start,
                     \ b:vichord_compl_arrays_keys_start,
                     \ b:vichord_compl_lines_start ]
+        let result_max = max( four_results )
+        let winner = index( four_results, result_max )
 
         for id in range(4)
             if four_results[id] < 0 | continue | endif
             let b:vichord_last_ccount_vars[id][0] = b:vichord_call_count
             let result_im = s:completerFunctions[id](0, a:base)
             if id == g:VCHRD_LINE && len(result_im)
+                let winner = - g:VCHRD_LINE
                 let result = result_im
                 break
             endif
@@ -135,6 +141,9 @@ function VimComplete(findstart, base)
         endfor
         call uniq(sort(result))
     endif
+    "echoh Error
+    "echom "××× COMPLETE" a:findstart "×××  ·•««" get(l:,'winner',-1)"»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
+    "echoh None
     return result
 endfunction
 
@@ -160,19 +169,21 @@ function CompleteVimFunctions(findstart, base)
             "echom "-3 ← second (line[idx:] ↔ " . line[idx:] .")"
             let b:vichord_compl_functions_start = -3
         else
+            "echom ":: func on ACTIVE-POSITION, line[idx:] ←—→ " . line[idx:] .", len(bits_ne) ←—→ " . len(line_bits_ne) . (len(line_bits_ne) >= 2 ? ", i.e.: large one" : ", i.e.: compact one")
             let b:vichord_compl_functions_start = strridx(line, line_bits[-1])
             if b:vichord_compl_functions_start >= 0
                 let idx = match(line[b:vichord_compl_functions_start:], '\v\k')
                 let idx = idx >= 0 ? idx : 0
                 let idx2 = match(line[b:vichord_compl_functions_start+idx:], '\v\.')
-                "echom 'idx2 is →→→ ' . idx2
-                let idx += idx2 >= 0 ? idx2+1 : 0
+                "echom ':: idx2 is →→→ ' . idx2
+                " It'll be 0 if idx2 is -1.
+                let idx += idx2+1
             else
                 let idx = 0
             endif
             " Support the from-void text completing. It's however disabled on
             " the upper level.
-            "echom 'idx is →→→ ' . idx
+            "echom ':: idx is →→→ ' . idx
             let b:vichord_compl_functions_start += line_bits[-1] =~ '^[[:space:]]$' ? 1 : 0
             let b:vichord_compl_functions_start += idx >= 0 ? idx : 0
         endif
@@ -266,17 +277,20 @@ function VimCompleteLines(findstart, base)
         let b:vichord_last_completed_line = line
         " A short-path (also a logic- short-path ↔ see the first completer
         " function call) for the locked-in-cache state.
+        let quoted_stripped = VimQuoteRegex(substitute(line,'\v^[[:space:]]+', "", ""))
+        " PUM might be hidden, however because of the entered space — it seems
+        " to in general close PUM — and not because there aren't any matches —
+        " by the empty(matchstr(…)) condition we verify this and give a green
+        " light to *restart* the PUM (via the auto-popmenu plugin, which
+        " restarts the ^X^O completion constantly — also after the by-space
+        " close of it).
         if b:vichord_cache_lines_active == 2 &&
                     \ enter_cstate == 2 &&
-                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.VimQuoteRegex(substitute(line,'\v^[[:space:]]+', "", "")).'.*' ) )
-            "echom 'SHORT-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . '→→' . matchstr( b:vichord_lines_cache, '\v^'.VimQuoteRegex(substitute(line,'\v^[[:space:]]+', "", "")).'.*' )
-            let b:vichord_short_path_taken = 1
-            let b:vichord_compl_lines_start = (len(b:vichord_lines_cache) == 0 || !pumvisible())
-                        \ ? -3 : b:vichord_compl_lines_start
+                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.quoted_stripped.'.*' ) )
+            "echom 'CLOSE-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . ' →→ ' . matchstr( b:vichord_lines_cache, '\v^'.quoted_stripped.'.*' )
+            let b:vichord_compl_lines_start = -3
             "echom '1/b:vichord_compl_lines_start:' . b:vichord_compl_lines_start
             return b:vichord_compl_lines_start
-        else
-            let b:vichord_short_path_taken = 0
         endif
         if line =~ '\v^[[:space:]]*$'
             "echom "returning -3 here… " . string(line) . '/' b:vichord_last_completed_line
@@ -293,8 +307,8 @@ function VimCompleteLines(findstart, base)
         if b:vichord_cache_lines_active > 0
             "echom 'FROM CACHE [slen:' . strlen(line) .'↔col:'. col('.') . '][active:' . b:vichord_cache_lines_active . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
             let b:vichord_cache_lines_active = b:vichord_cache_lines_active == 2 ? 2 : 0
-            if b:vichord_short_path_taken || !pumvisible()
-                "echom 'RETURNING FILTERED [spth:'.b:vichord_short_path_taken.',!pum:'.!pumvisible().']: ' . string(Filtered2(function('DoesLineMatch'), b:vichord_lines_cache, line)[0:1])
+            if !pumvisible()
+                "echom 'RETURNING FILTERED [!pum:'.!pumvisible().']: ' . string(Filtered2(function('DoesLineMatch'), b:vichord_lines_cache, line)[0:1])
                 return Filtered2 ( function('DoesLineMatch'), b:vichord_lines_cache, line )
             else
                 return b:vichord_lines_cache
@@ -317,6 +331,7 @@ endfunction
 " type of the keywords (functions, parameters or array keys) to complete and
 " performs the operation.
 function s:completeKeywords(id, line_bits, line)
+    let entry_time = reltime()
     " Retrieve the complete list of Vim functions in the buffer on every
     " N-th call.
     if (b:vichord_call_count == 0) || ((b:vichord_call_count - a:id + 2) % 10 == 0)
@@ -334,7 +349,7 @@ function s:completeKeywords(id, line_bits, line)
     let result = []
     let a:line_bits[-1] = a:line_bits[-1] =~ '^[[:space:]]$' ? '' : a:line_bits[-1]
 
-    "echom "--ckeywords-- →→" . a:id . g:VCHRD_PARAM . ' / '. a:line_bits[-1]
+    "echom "--ckeywords-- →→→ " . a:id . ' [f:0,p:1,k:2,l:3] / '. a:line_bits[-1]
     if a:id == g:VCHRD_PARAM && a:line_bits[-1] =~ '\v^\$.*'
         let a:line_bits[-1] = (a:line_bits[-1])[1:]
         let pfx='$'
@@ -344,8 +359,7 @@ function s:completeKeywords(id, line_bits, line)
     elseif a:id == g:VCHRD_LINE
         let a:line_bits[-1] = substitute(a:line,'\v^[[:space:]]*', '', '')
     elseif a:id == g:VCHRD_FUNC
-        "echom "YES " . a:id
-        let a:line_bits[-1] = substitute(a:line_bits[-1],'\v^[[:space:]]*[^\.]*\.', '', '')
+        let a:line_bits[-1] = substitute(a:line_bits[-1],'\v^[[:space:]]*[^\.]*\.[[:space:]]*', '', '')
         let pfx=''
     else
         let pfx=''
@@ -372,7 +386,10 @@ function s:completeKeywords(id, line_bits, line)
             endif
         endif
     endfor
-
+    let g:vichord_summaric_completion_time += reltimefloat(reltime(entry_time))
+    "echohl WarningMsg
+    "echom "××× ckeywords ×××  ·•««" a:id "»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
+    "echohl None
     return result
 endfunction
 
@@ -519,6 +536,8 @@ let s:completerFunctions = [ function("CompleteVimFunctions"),
             \ function("CompleteVimArrayAndHashKeys"),
             \ function("VimCompleteLines") ]
 
+let g:vichord_summaric_completion_time = 0.0
+
 augroup VimOmniComplInitGroup
     au FileType * call VimOmniComplBufInit()
 augroup END
@@ -542,7 +561,7 @@ endfunction
 
 function! Filtered2(fn, l, arg)
     let new_list = deepcopy(a:l)
-    "echom "Filtered2 [len:".len(new_list)."]: " . string(a:fn).'(v:val, "' . substitute(a:arg,'\v([\"\\])','\\\1',"") . '")'
+    "echom "Filtered2 [len:".len(new_list)."]:" string(a:fn).'(v:val, "' . substitute(a:arg,'\v([\"\\])','\\\1',"") . '")'
     call filter(new_list, string(a:fn).'(v:val, "' . substitute(a:arg,'\v([\"\\])','\\\1',"") . '")')
     return new_list
 endfunction
