@@ -367,7 +367,7 @@ endfunction
 " A function which quotes the regex-special characters with a backslash, which
 " makes them inactive, literal characters in the very-magic mode (… =~ " '\v…').
 function VimQuoteRegex(str)
-    return substitute( substitute( a:str, '\v\','\\\\', "g" ), '\v(\^\.|\+|\*|\[|\]|\{|\}|\$|\||\!|\~)','\\\1',"g" )
+    return substitute( substitute( a:str, '\v\','\\\\', "g" ), '\v[^0-9A-Za-z_]','\\&',"g" )
 endfunction
 
 " The idea of this completion plugin is the following:
@@ -389,7 +389,7 @@ function s:getPrecedingBits(findstart)
         let curs_col = b:vichord_cursor_col
     endif
 
-    let line_bits = split(line,'\v[[:space:]\{\}\(\)\#\%\=\^!\*\<\>\"'."\\'".']')
+    let line_bits = split(line,'\v[[:space:]\{\}\(\)\#\%\=\^\!\*\"'."\\'".']')
     let line_bits = len(line_bits) >= 1 ? line_bits : [len(line) > 0 ? (line)[len(line)-1] : ""]
 
     if len(line_bits) > 1
