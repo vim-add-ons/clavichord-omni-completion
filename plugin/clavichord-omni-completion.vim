@@ -152,18 +152,28 @@ function CompleteVimFunctions(findstart, base)
         else
             let idx = 0
         endif
-        "echom idx . "← idx"
+        "echom idx . " →→ idx"
         if line_bits[-1] !~ '\v\k{1,}$'
             "echom "-3 ← first"
             let b:vichord_compl_functions_start = -3
-        elseif len(line_bits_ne) >= 2 && line[idx:] !~ '\v^[[:space:]]*(\||if|elseif|call)[[:space:]]+\k{1,}$'
-            "echom "-3 ← second"
+        elseif len(line_bits_ne) >= 2 && line[idx:] !~ '\v(^([[:space:]]*(\||if|elseif|call)[[:space:]]+|[[:space:]]*)\k{1,}|([^\.]|^)\.[[:space:]]*\k{1,})$'
+            "echom "-3 ← second (line[idx:] ↔ " . line[idx:] .")"
             let b:vichord_compl_functions_start = -3
         else
             let b:vichord_compl_functions_start = strridx(line, line_bits[-1])
+            if b:vichord_compl_functions_start >= 0
+                let idx = match(line[b:vichord_compl_functions_start:], '\v\k')
+                let idx2 = match(line[b:vichord_compl_functions_start+(idx >= 0 ? idx:0):], '\v[^\.]')
+                "echom 'idx2 is →→→ ' . idx2
+                let idx += idx2 >= 0 ? idx2 : 0
+            else
+                let idx = 0
+            endif
             " Support the from-void text completing. It's however disabled on
             " the upper level.
+            "echom 'idx is →→→ ' . idx
             let b:vichord_compl_functions_start += line_bits[-1] =~ '^[[:space:]]$' ? 1 : 0
+            let b:vichord_compl_functions_start += idx >= 0 ? idx : 0
         endif
         "echom 'b:vichord_compl_functions_start:' . b:vichord_compl_functions_start
         return b:vichord_compl_functions_start
@@ -332,6 +342,10 @@ function s:completeKeywords(id, line_bits, line)
         let pfx=''
     elseif a:id == g:VCHRD_LINE
         let a:line_bits[-1] = substitute(a:line,'\v^[[:space:]]*(.*)$', '\1', '')
+    elseif a:id == g:VCHRD_FUNC
+        "echom "YES " . a:id
+        let a:line_bits[-1] = substitute(a:line_bits[-1],'\v^[[:space:]]*\.', '', '')
+        let pfx=''
     else
         let pfx=''
     endif
