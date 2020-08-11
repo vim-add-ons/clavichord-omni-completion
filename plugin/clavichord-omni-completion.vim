@@ -341,7 +341,7 @@ function s:completeKeywords(id, line_bits, line)
         let a:line_bits[-1] = substitute( a:line_bits[-1], '\v^[^\[]+\[', '', '' )
         let pfx=''
     elseif a:id == g:VCHRD_LINE
-        let a:line_bits[-1] = substitute(a:line,'\v^[[:space:]]*(.*)$', '\1', '')
+        let a:line_bits[-1] = substitute(a:line,'\v^[[:space:]]*', '', '')
     elseif a:id == g:VCHRD_FUNC
         "echom "YES " . a:id
         let a:line_bits[-1] = substitute(a:line_bits[-1],'\v^[[:space:]]*\.', '', '')
