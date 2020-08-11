@@ -155,14 +155,17 @@ function CompleteVimParameters(findstart, base)
     " First call — basically return 0. Additionally (it's unused value),
     " remember the current column.
     if a:findstart
-        if line_bits[-1] !~ '\v(\$|^[a-zA-Z0-9_]+$)'
+        if line_bits[-1] !~ '\v^%([slgba]:|)[a-zA-Z0-9_]+$'
             let b:vichord_compl_parameters_start = -3
         else
             let b:vichord_compl_parameters_start = strridx(line, line_bits[-1])
-            let idx = stridx(line[b:vichord_compl_parameters_start:],'$')
+            " First try to orientate on the colon…
+            let idx = stridx(line[b:vichord_compl_parameters_start:],':') - 1
+            " …if it fails, then try to on the alpha-numerics and underscore.
+            let idx = idx < 0 ? match(line[b:vichord_compl_parameters_start:],'[a-zA-Z_]') : idx
             let b:vichord_compl_parameters_start = b:vichord_compl_parameters_start + (idx < 0 ? 0 : idx)
             " Support the from-void text completing. It's however disabled on
-            " the upper level.
+            " the upper level (above).
             let b:vichord_compl_parameters_start += line_bits[-1] =~ '^[[:space:]]$' ? 1 : 0
         endif
         echom 'b:vichord_compl_parameters_start:' . b:vichord_compl_parameters_start
