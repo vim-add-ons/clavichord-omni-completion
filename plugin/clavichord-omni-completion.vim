@@ -347,7 +347,14 @@ function s:gatherArrayAndHashKeys()
         let idx = match(line, '\v([slgba]:|)[a-zA-Z0-9_]+\[[^\]]+\]', 0)
         while idx >= 0
             let res_list = matchlist(line, '\v%([slgba]:|)[a-zA-Z0-9_]+\[([^\]]+)\]', idx)
-            call add(b:vichord_array_and_hash_keys, res_list[1])
+            
+            call add(b:vichord_array_and_hash_keys, substitute(res_list[1],":$","",""))
+            " Support the List and string slices: [a:b].
+            let res_list2 = matchlist(res_list[1], '\v(%(.{-1,}[^slgba]|[^sglba])):(.+)', 0)
+            if len( res_list2 ) > 0
+                call add(b:vichord_array_and_hash_keys, res_list2[1])
+                call add(b:vichord_array_and_hash_keys, res_list2[2])
+            endif
             let idx = match(line, '\v%([slgba]:|)[a-zA-Z0-9_]+\[[^\]]+\]', idx+len(res_list[1])+2)
         endwhile
     endfor
