@@ -14,6 +14,7 @@ function VimOmniComplBufInit()
                 \ b:vichord_last_kccount, b:vichord_last_lccount ] = [ [-1], [-1], [-1], [-1] ]
     let b:vichord_last_ccount_vars = [ b:vichord_last_fccount, b:vichord_last_pccount, 
                 \ b:vichord_last_kccount, b:vichord_last_lccount ]
+    let g:vichord_search_in_let = get(g:,"vichord_search_in_let", 0)
     if &ft == 'vim'
         if ! get(g:,'vichord_use_cfu_setting','0')
             setlocal omnifunc=VimComplete
@@ -328,6 +329,13 @@ function s:gatherParameterNames()
             call add(b:vichord_parameters, res_list[0])
             let idx = match(line, '\v[slgba]:[a-zA-Z0-9_]+', idx+len(res_list[0])+2)
         endwhile
+        " Try to optimize as much as possible…
+        if g:vichord_search_in_let && match(line, '\v^[[:space:]]*let') >= 0
+            let mres = matchlist(line, '\vlet[[:space:]]+%([slgba]:)@<!([a-zA-Z0-9_]+)')
+            if !empty(mres)
+                call add(b:vichord_parameters, mres[1])
+            endif
+        endif
     endfor
 
     " Uniqify the resulting list of Vim parameter names. The uniquification
