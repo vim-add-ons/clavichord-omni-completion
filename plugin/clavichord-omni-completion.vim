@@ -182,9 +182,11 @@ function CompleteVimParameters(findstart, base)
     " remember the current column.
     if a:findstart
         if line_bits[-1] !~ '\v^%([slgba]:|)[a-zA-Z0-9_]*$'
+            "echom "Improper line_bits for parameters [". line_bits[-1] ."]"
             let b:vichord_compl_parameters_start = -3
         else
             let b:vichord_compl_parameters_start = strridx(line, line_bits[-1])
+            "echom "Searching line =~ line_bits: ". line . ' =~ ' . line_bits[-1] . ', found: '. b:vichord_compl_parameters_start
             " First try to orientate on the colon…
             let idx = stridx(line[b:vichord_compl_parameters_start:],':') - 1
             " …if it fails, then try to on the alpha-numerics and underscore.
@@ -277,7 +279,7 @@ function VimCompleteLines(findstart, base)
     else
         " Detect the matching arrays' and hashes' keys and return them.
         if b:vichord_cache_lines_active > 0
-            "echom 'FROM CACHE [' . b:vichord_cache_lines_active . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
+            "echom 'FROM CACHE [slen:' . strlen(line) .'↔col:'. col('.') . '][active:' . b:vichord_cache_lines_active . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
             let b:vichord_cache_lines_active = b:vichord_cache_lines_active == 2 ? 2 : 0
             if b:vichord_short_path_taken || !pumvisible()
                 "echom 'RETURNING FILTERED: ' . string(Filtered2(function('DoesLineMatch'), b:vichord_lines_cache, line)[0:1])
@@ -290,7 +292,7 @@ function VimCompleteLines(findstart, base)
             let enter_cstate = b:vichord_cache_lines_active
             let b:vichord_cache_lines_active = b:vichord_cache_lines_active == -1 ? 2 : 1
             let b:vichord_lines_cache = s:completeKeywords(g:VCHRD_LINE, line_bits, line)
-            "echom 'FROM COMPUTATION [' . enter_cstate . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
+            "echom 'FROM COMPUTATION [slen:' . strlen(line) .'↔col:'. col('.') . '][active:' . enter_cstate . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
             return b:vichord_lines_cache
         endif
     endif
