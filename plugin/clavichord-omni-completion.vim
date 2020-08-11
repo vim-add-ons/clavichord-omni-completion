@@ -259,7 +259,6 @@ function VimCompleteLines(findstart, base)
             "echom '1/b:vichord_compl_lines_start:' . b:vichord_compl_lines_start
             return b:vichord_compl_lines_start
         endif
-        " Go down from the invalidation blockade but preserve logical state.
         if line  =~ '\v^[[:space:]]*$'
             "echom "returning -3 here… " . string(line) . '/' b:vichord_last_completed_line
 
