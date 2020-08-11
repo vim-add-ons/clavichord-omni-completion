@@ -256,8 +256,8 @@ function VimCompleteLines(findstart, base)
         " function call) for the locked-in-cache state.
         if b:vichord_cache_lines_active == 2 &&
                     \ enter_cstate == 2 &&
-                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.ZshQuoteRegex(line).'.*' ) )
-            "echom 'SHORT-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . '→→' . matchstr( b:vichord_lines_cache, '\v^'.ZshQuoteRegex(line).'.*' )
+                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.VimQuoteRegex(line).'.*' ) )
+            "echom 'SHORT-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . '→→' . matchstr( b:vichord_lines_cache, '\v^'.VimQuoteRegex(line).'.*' )
             let b:vichord_short_path_taken = 1
             let b:vichord_compl_lines_start = (len(b:vichord_lines_cache) == 0 || !pumvisible())
                         \ ? -3 : b:vichord_compl_lines_start
@@ -337,6 +337,7 @@ function s:completeKeywords(id, line_bits, line)
     "echom 'After: '.a:id.' / '.string(a:line_bits)
 
     let l:count = 0
+    "echom "VimQuoteRegex(a:line_bits[-1]): " . VimQuoteRegex(a:line_bits[-1])
     for the_key in gatherVariables[a:id]
         let l:count += 1
         if a:id == g:VCHRD_LINE
