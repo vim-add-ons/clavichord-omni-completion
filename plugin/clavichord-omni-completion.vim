@@ -150,7 +150,7 @@ endfunction
 " FUNCTION: CompleteVimFunctions()
 " The function is a complete-function which returns matching Vim-function names.
 function CompleteVimFunctions(findstart, base)
-    let [line_bits,line] = s:getPrecedingBits(a:findstart)
+    let [line_bits,line] = s:getPrecedingBits(a:findstart,'\.')
     " First call — basically return 0. Additionally (it's unused value),
     " remember the current column.
     if a:findstart
@@ -492,7 +492,7 @@ endfunction
 "   SomeTextSomeText,
 " - so the completion takes the whole part in which the cursor currently is
 "   being located, not only the preceding part.
-function s:getPrecedingBits(findstart)
+function s:getPrecedingBits(findstart, ...)
     if a:findstart
         let line = getline(".")
         let b:vichord_curline = line
@@ -503,7 +503,8 @@ function s:getPrecedingBits(findstart)
         let curs_col = b:vichord_cursor_col
     endif
 
-    let line_bits = split(line,'\v[[:space:]\{\}\(\)\#\%\=\^\!\*]')
+    let additional = len(a:000) > 0 ? a:000[0] : ""
+    let line_bits = split(line,'\v[[:space:]\{\}\(\)\#\%\=\^\!\*'.additional.']')
     let line_bits = len(line_bits) >= 1 ? line_bits : [len(line) > 0 ? (line)[len(line)-1] : ""]
 
     if len(line_bits) > 1
