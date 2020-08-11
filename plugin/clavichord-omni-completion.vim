@@ -256,8 +256,8 @@ function VimCompleteLines(findstart, base)
         " function call) for the locked-in-cache state.
         if b:vichord_cache_lines_active == 2 &&
                     \ enter_cstate == 2 &&
-                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.VimQuoteRegex(line).'.*' ) )
-            "echom 'SHORT-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . '→→' . matchstr( b:vichord_lines_cache, '\v^'.VimQuoteRegex(line).'.*' )
+                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.VimQuoteRegex(substitute(line,'\v^[[:space:]]+', "", "")).'.*' ) )
+            "echom 'SHORT-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . '→→' . matchstr( b:vichord_lines_cache, '\v^'.VimQuoteRegex(substitute(line,'\v^[[:space:]]+', "", "")).'.*' )
             let b:vichord_short_path_taken = 1
             let b:vichord_compl_lines_start = (len(b:vichord_lines_cache) == 0 || !pumvisible())
                         \ ? -3 : b:vichord_compl_lines_start
