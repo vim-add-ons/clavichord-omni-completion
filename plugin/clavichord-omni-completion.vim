@@ -1,5 +1,5 @@
 "
-" Clavichord Vim Omni Completion for the VimL Language.
+" « Clavichord » Vim Omni Completion for the VimL Language.
 " Copyright (c) 2020 Sebastian Gniazdowski.
 " License: Gnu GPL v3.
 " 
