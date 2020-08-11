@@ -529,14 +529,14 @@ function! Filtered2(fn, l, arg)
     return new_list
 endfunction
 
-function! DoesLineMatch(match, line)
-    return a:match =~# '\v^' . VimQuoteRegex(a:line) . '.*'
-endfunction
-
 function! FilteredNot(fn, l)
     let new_list = deepcopy(a:l)
     call filter(new_list, '!'.string(a:fn) . '(v:val)')
     return new_list
+endfunction
+
+function! DoesLineMatch(match, line)
+    return a:match =~# '\v^' . VimQuoteRegex(a:line) . '.*'
 endfunction
 
 function! CreateEmptyList(name)
