@@ -235,7 +235,34 @@ function VimCompleteLines(findstart, base)
     " First call — basically return 0. Additionally (it's unused value),
     " remember the current column.
     if a:findstart
-        if line_bits[-1] =~ '\v^[[:space:]]*$'
+        " Remember the entry cache-state to verify its change later.
+        let enter_cstate = b:vichord_cache_lines_active
+        " Line was enriched, extended? Thus, it cannot yield any NEW ↔ DIFFERENT
+        " results?
+        if len(line) >= len(b:vichord_last_completed_line) && !empty(b:vichord_last_completed_line)
+            " Disable the cache invalidation IF a fresh cache has been computed.
+            " — 2 — got a fresh cache, invalidation stopped,
+            " — -1 — request a fresh cache recomputation before the stop.
+            let b:vichord_cache_lines_active = b:vichord_cache_lines_active == 2 ? 2 : -1
+        else
+            let b:vichord_cache_lines_active = 0
+        endif
+        "echom (len(line) >= len(b:vichord_last_completed_line) ? "NO, not withdrawed >= (new is longer / same)" : "YES, withdrawed < (new is shorter)") . " →→ " . line . ' ↔ ' . b:vichord_last_completed_line 
+        "echom "b:VICHORD_CACHE_LINES_ACTIVE ←← " . b:vichord_cache_lines_active
+        let b:vichord_last_completed_line = line
+        " A short-path (also a logic- short-path ↔ see the first completer
+        " function call) for the locked-in-cache state.
+        if b:vichord_cache_lines_active == 2 && enter_cstate == 2
+            "echom 'SHORT-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1])
+            let b:vichord_compl_lines_start = (len(b:vichord_lines_cache) == 0 || !pumvisible())
+                        \ ? -3 : b:vichord_compl_lines_start
+            "echom '1/b:vichord_compl_lines_start:' . b:vichord_compl_lines_start
+            return b:vichord_compl_lines_start
+        endif
+        " Go down from the invalidation blockade but preserve logical state.
+        if line  =~ '\v^[[:space:]]*$'
+            "echom "returning -3 here… " . string(line) . '/' b:vichord_last_completed_line
+
             let b:vichord_compl_lines_start = -3
         else
             let line_bits_ne = Filtered(function('len'), line_bits)
@@ -246,12 +273,16 @@ function VimCompleteLines(findstart, base)
         return b:vichord_compl_lines_start
     else
         " Detect the matching arrays' and hashes' keys and return them.
-        if b:vichord_cache_lines_active
-            let b:vichord_cache_lines_active = 0
+        if b:vichord_cache_lines_active > 0
             "echom 'FROM CACHE [' . b:vichord_cache_lines_active . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
+            let b:vichord_cache_lines_active =
+                        \ (b:vichord_cache_lines_active == 2 ||
+                        \ b:vichord_cache_lines_active == -1) ? 2 : 0
             return b:vichord_lines_cache
         else
-            let b:vichord_cache_lines_active = 1
+            " helper var
+            let enter_cstate = b:vichord_cache_lines_active
+            let b:vichord_cache_lines_active = b:vichord_cache_lines_active == -1 ? 2 : 1
             let b:vichord_lines_cache = s:completeKeywords(g:VCHRD_LINE, line_bits, line)
             "echom 'FROM COMPUTATION [' . enter_cstate . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
             return b:vichord_lines_cache
