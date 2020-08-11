@@ -252,16 +252,20 @@ function VimCompleteLines(findstart, base)
         let b:vichord_last_completed_line = line
         " A short-path (also a logic- short-path ↔ see the first completer
         " function call) for the locked-in-cache state.
-        if b:vichord_cache_lines_active == 2 && enter_cstate == 2
-            "echom 'SHORT-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1])
+        if b:vichord_cache_lines_active == 2 &&
+                    \ enter_cstate == 2 &&
+                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.ZshQuoteRegex(line).'.*' ) )
+            "echom 'SHORT-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . '→→' . matchstr( b:vichord_lines_cache, '\v^'.ZshQuoteRegex(line).'.*' )
+            let b:vichord_short_path_taken = 1
             let b:vichord_compl_lines_start = (len(b:vichord_lines_cache) == 0 || !pumvisible())
                         \ ? -3 : b:vichord_compl_lines_start
             "echom '1/b:vichord_compl_lines_start:' . b:vichord_compl_lines_start
             return b:vichord_compl_lines_start
+        else
+            let b:vichord_short_path_taken = 0
         endif
-        if line  =~ '\v^[[:space:]]*$'
+        if line =~ '\v^[[:space:]]*$'
             "echom "returning -3 here… " . string(line) . '/' b:vichord_last_completed_line
-
             let b:vichord_compl_lines_start = -3
         else
             let line_bits_ne = Filtered(function('len'), line_bits)
@@ -274,10 +278,13 @@ function VimCompleteLines(findstart, base)
         " Detect the matching arrays' and hashes' keys and return them.
         if b:vichord_cache_lines_active > 0
             "echom 'FROM CACHE [' . b:vichord_cache_lines_active . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
-            let b:vichord_cache_lines_active =
-                        \ (b:vichord_cache_lines_active == 2 ||
-                        \ b:vichord_cache_lines_active == -1) ? 2 : 0
-            return b:vichord_lines_cache
+            let b:vichord_cache_lines_active = b:vichord_cache_lines_active == 2 ? 2 : 0
+            if b:vichord_short_path_taken || !pumvisible()
+                "echom 'RETURNING FILTERED: ' . string(Filtered2(function('DoesLineMatch'), b:vichord_lines_cache, line)[0:1])
+                return Filtered2 ( function('DoesLineMatch'), b:vichord_lines_cache, line )
+            else
+                return b:vichord_lines_cache
+            endif
         else
             " helper var
             let enter_cstate = b:vichord_cache_lines_active
@@ -512,6 +519,16 @@ function! Filtered(fn, l)
     let new_list = deepcopy(a:l)
     call filter(new_list, string(a:fn) . '(v:val)')
     return new_list
+endfunction
+
+function! Filtered2(fn, l, arg)
+    let new_list = deepcopy(a:l)
+    call filter(new_list, string(a:fn) . '(v:val, "' . a:arg . '")')
+    return new_list
+endfunction
+
+function! DoesLineMatch(match, line)
+    return a:match =~# '\v^' . VimQuoteRegex(a:line) . '.*'
 endfunction
 
 function! FilteredNot(fn, l)
