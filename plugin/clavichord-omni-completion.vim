@@ -181,7 +181,7 @@ function CompleteVimParameters(findstart, base)
     " First call — basically return 0. Additionally (it's unused value),
     " remember the current column.
     if a:findstart
-        if line_bits[-1] !~ '\v^%([slgba]:|)[a-zA-Z0-9_]*$'
+        if line_bits[-1] !~ '\v^%([slgba]:[a-zA-Z0-9_]*|[a-zA-Z0-9_]+)$'
             "echom "Improper line_bits for parameters [". line_bits[-1] ."]"
             let b:vichord_compl_parameters_start = -3
         else
