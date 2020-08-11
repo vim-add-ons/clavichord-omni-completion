@@ -68,7 +68,7 @@ function VimComplete(findstart, base)
         let s:vichord_all_buffers_lines = []
         for bufnum in range(last_buffer_nr()+1)
             if buflisted(bufnum)
-                let s:vichord_all_buffers_lines += getbufline(bufnum, 1,"$")
+                let s:vichord_all_buffers_lines += map(getbufline(bufnum, 1,"$"), 'substitute(v:val,''\v^[[:space:]]*'', '''', '''')')
             endif
         endfor
     endif
@@ -367,12 +367,12 @@ function s:completeKeywords(id, line_bits, line)
     "echom 'After: '.a:id.' / '.string(a:line_bits)
 
     let l:count = 0
-    "echom "VimQuoteRegex(a:line_bits[-1]): " . VimQuoteRegex(a:line_bits[-1])
+    let quoted = VimQuoteRegex(a:line_bits[-1])
+    "echom "VimQuoteRegex(a:line_bits[-1]): " . quoted
     for the_key in gatherVariables[a:id]
         let l:count += 1
         if a:id == g:VCHRD_LINE
-            let the_key = substitute(the_key,'\v^[[:space:]]*(.*)$', '\1', '')
-            if the_key =~# '\v^' . VimQuoteRegex(a:line_bits[-1]). '.*'
+            if the_key =~# '\v^' . quoted . '.*'
                 if the_key != a:line_bits[-1]
                     call add(result, the_key)
                 endif
@@ -381,7 +381,7 @@ function s:completeKeywords(id, line_bits, line)
                 break
             endif
         else
-            if the_key =~# '\v^' . VimQuoteRegex(a:line_bits[-1]). '.*'
+            if the_key =~# '\v^' . quoted . '.*'
                 call add(result, pfx.the_key)
             endif
         endif
