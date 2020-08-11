@@ -322,7 +322,7 @@ function s:gatherParameterNames()
 
     " Iterate over the lines in the buffer searching for a Vim parameter name.
     for line in s:vichord_all_buffers_lines
-        let idx = match(line, '\v[slgba]:[a-zA-Z0-9_]+', 0)
+        let idx = match(line, '\v[slgba]:[a-zA-Z0-9_]+')
         while idx >= 0
             let res_list = matchlist(line, '\v[slgba]:[a-zA-Z0-9_]+', idx)
             call add(b:vichord_parameters, res_list[0])
@@ -344,13 +344,13 @@ function s:gatherArrayAndHashKeys()
 
     " Iterate over the lines in the buffer searching for a Vim parameter name.
     for line in s:vichord_all_buffers_lines
-        let idx = match(line, '\v([slgba]:|)[a-zA-Z0-9_]+\[[^\]]+\]', 0)
+        let idx = match(line, '\v([slgba]:|)[a-zA-Z0-9_]+\[[^\]]+\]')
         while idx >= 0
             let res_list = matchlist(line, '\v%([slgba]:|)[a-zA-Z0-9_]+\[([^\]]+)\]', idx)
             
             call add(b:vichord_array_and_hash_keys, substitute(res_list[1],":$","",""))
             " Support the List and string slices: [a:b].
-            let res_list2 = matchlist(res_list[1], '\v(%(.{-1,}[^slgba]|[^sglba])):(.+)', 0)
+            let res_list2 = matchlist(res_list[1], '\v(%(.{-1,}[^slgba]|[^sglba])):(.+)')
             if len( res_list2 ) > 0
                 call add(b:vichord_array_and_hash_keys, res_list2[1])
                 call add(b:vichord_array_and_hash_keys, res_list2[2])
