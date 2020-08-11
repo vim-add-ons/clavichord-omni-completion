@@ -282,7 +282,7 @@ function VimCompleteLines(findstart, base)
             "echom 'FROM CACHE [slen:' . strlen(line) .'↔col:'. col('.') . '][active:' . b:vichord_cache_lines_active . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
             let b:vichord_cache_lines_active = b:vichord_cache_lines_active == 2 ? 2 : 0
             if b:vichord_short_path_taken || !pumvisible()
-                "echom 'RETURNING FILTERED: ' . string(Filtered2(function('DoesLineMatch'), b:vichord_lines_cache, line)[0:1])
+                "echom 'RETURNING FILTERED [spth:'.b:vichord_short_path_taken.',!pum:'.!pumvisible().']: ' . string(Filtered2(function('DoesLineMatch'), b:vichord_lines_cache, line)[0:1])
                 return Filtered2 ( function('DoesLineMatch'), b:vichord_lines_cache, line )
             else
                 return b:vichord_lines_cache
