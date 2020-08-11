@@ -239,7 +239,6 @@ endfunction
 " type of the keywords (functions, parameters or array keys) to complete and
 " performs the operation.
 function s:completeKeywords(id, line_bits, line)
-    echom "@@@CALLED@@@"
     " Retrieve the complete list of Vim functions in the buffer on every
     " N-th call.
     if (b:vichord_call_count == 0) || ((b:vichord_call_count - a:id + 2) % 10 == 0)
@@ -276,7 +275,6 @@ function s:completeKeywords(id, line_bits, line)
         let l:count += 1
         if a:id == g:VCHRD_LINE
             let the_key = substitute(the_key,'\v^[[:space:]]*(.*)$', '\1', '')
-            echom '\v^' . VimQuoteRegex(a:line_bits[-1]). '.*'
             if the_key =~# '\v^' . VimQuoteRegex(a:line_bits[-1]). '.*'
                 if the_key != a:line_bits[-1]
                     call add(result, the_key)
@@ -292,7 +290,6 @@ function s:completeKeywords(id, line_bits, line)
         endif
     endfor
 
-    echom '2/Returning: '.string(result)
     return result
 endfunction
 
