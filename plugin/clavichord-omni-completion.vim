@@ -163,9 +163,10 @@ function CompleteVimFunctions(findstart, base)
             let b:vichord_compl_functions_start = strridx(line, line_bits[-1])
             if b:vichord_compl_functions_start >= 0
                 let idx = match(line[b:vichord_compl_functions_start:], '\v\k')
-                let idx2 = match(line[b:vichord_compl_functions_start+(idx >= 0 ? idx:0):], '\v[^\.]')
+                let idx = idx >= 0 ? idx : 0
+                let idx2 = match(line[b:vichord_compl_functions_start+idx:], '\v\.')
                 "echom 'idx2 is →→→ ' . idx2
-                let idx += idx2 >= 0 ? idx2 : 0
+                let idx += idx2 >= 0 ? idx2+1 : 0
             else
                 let idx = 0
             endif
@@ -344,7 +345,7 @@ function s:completeKeywords(id, line_bits, line)
         let a:line_bits[-1] = substitute(a:line,'\v^[[:space:]]*', '', '')
     elseif a:id == g:VCHRD_FUNC
         "echom "YES " . a:id
-        let a:line_bits[-1] = substitute(a:line_bits[-1],'\v^[[:space:]]*\.', '', '')
+        let a:line_bits[-1] = substitute(a:line_bits[-1],'\v^[[:space:]]*[^\.]*\.', '', '')
         let pfx=''
     else
         let pfx=''
