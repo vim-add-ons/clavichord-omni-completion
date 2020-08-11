@@ -33,6 +33,7 @@
 function VimOmniComplBufInit()
     let b:vichord_call_count = 0
     let b:vichord_cache_lines_active = 0
+    let b:vichord_last_completed_line = ''
     let [ b:vichord_last_fccount, b:vichord_last_pccount, 
                 \ b:vichord_last_kccount, b:vichord_last_lccount ] = [ [-1], [-1], [-1], [-1] ]
     let b:vichord_last_ccount_vars = [ b:vichord_last_fccount, b:vichord_last_pccount, 
@@ -52,6 +53,7 @@ endfunction
 " has the main task to perform the omni-completion, i.e.: to return the list of
 " matches to the text before the cursor.
 function VimComplete(findstart, base)
+    "echom "::: COMPLETE ::: findstart:" . a:findstart . ", line: " . getbufline(bufnr(), line("."))[0] .", base: " . a:base
     " Prepare the buffers' contents for processing, if needed (i.e.: on every
     " N-th call, when only also the processing-sequence is being initiated).
     "
@@ -73,7 +75,7 @@ function VimComplete(findstart, base)
         call CompleteVimFunctions(1, a:base)
         if b:vichord_compl_functions_start >= 0
             let result_compl = CompleteVimFunctions(0, a:base)
-            "echom '1/len(result_compl)='.len(result_compl)
+            "echom 'FUNCTIONS 1/len(result_compl)='.len(result_compl)
             if len(result_compl)
                 let result = b:vichord_compl_functions_start
                 let winner = 0
@@ -88,7 +90,7 @@ function VimComplete(findstart, base)
             call VimCompleteLines(1, a:base)
             if ( b:vichord_compl_lines_start >= 0 )
                 let result_compl = VimCompleteLines(0, a:base)
-                "echom '2/len(result_compl)='.len(result_compl)
+                "echom 'LINES 2/len(result_compl)='.len(result_compl)
                 if len(result_compl)
                     let result = b:vichord_compl_lines_start
                     let winner = 3
@@ -112,7 +114,7 @@ function VimComplete(findstart, base)
         " where the specific object-kind completion finished the cycle in the
         " previous call to VimComplete.
         let b:vichord_call_count = (b:vichord_last_ccount_vars[winner])[0] + 1
-        "echom "Returning: " . string(result)
+        "echom "Returning [a:findstart==1 VimComplete call]: " . string(result)
     else
         let result = []
 
@@ -144,7 +146,7 @@ function CompleteVimFunctions(findstart, base)
     " remember the current column.
     if a:findstart
         let line_bits_ne = Filtered(function('len'), line_bits)
-        "echom string(line_bits) . string(line_bits_ne)
+        "echom "::: FUNS ::: " . string(line_bits) . string(line_bits_ne)
         if len(line_bits_ne)
             let idx = strridx( line, len(line_bits_ne) >= 2 ? line_bits_ne[-2] : line_bits_ne[-1] )
         else
@@ -240,17 +242,18 @@ function VimCompleteLines(findstart, base)
             let idx = stridx(line,line_bits_ne[0])
             let b:vichord_compl_lines_start = idx <= 0 ? 0 : idx
         endif
+        "echom '2/b:vichord_compl_lines_start:' . b:vichord_compl_lines_start
         return b:vichord_compl_lines_start
     else
         " Detect the matching arrays' and hashes' keys and return them.
         if b:vichord_cache_lines_active
             let b:vichord_cache_lines_active = 0
-            "echom 'From cache'
+            "echom 'FROM CACHE [' . b:vichord_cache_lines_active . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
             return b:vichord_lines_cache
         else
             let b:vichord_cache_lines_active = 1
-            "echom 'From computation'
             let b:vichord_lines_cache = s:completeKeywords(g:VCHRD_LINE, line_bits, line)
+            "echom 'FROM COMPUTATION [' . enter_cstate . '], 1…2: → ' . string(b:vichord_lines_cache[0:1])
             return b:vichord_lines_cache
         endif
     endif
@@ -280,7 +283,7 @@ function s:completeKeywords(id, line_bits, line)
     let result = []
     let a:line_bits[-1] = a:line_bits[-1] =~ '^[[:space:]]$' ? '' : a:line_bits[-1]
 
-    "echom a:id . g:VCHRD_PARAM . ' / '. a:line_bits[-1]
+    "echom "--ckeywords-- →→" . a:id . g:VCHRD_PARAM . ' / '. a:line_bits[-1]
     if a:id == g:VCHRD_PARAM && a:line_bits[-1] =~ '\v^\$.*'
         let a:line_bits[-1] = (a:line_bits[-1])[1:]
         let pfx='$'
