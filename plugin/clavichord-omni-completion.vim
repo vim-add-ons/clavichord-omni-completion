@@ -302,7 +302,7 @@ function s:gatherFunctionNames()
 
     " Iterate over the lines in the buffer searching for a function name.
     for line in s:vichord_all_buffers_lines
-        if line =~# '\v^fu%(n%(c%(t%(i%(o%(n|)|)|)|)|)|)[[:space:]]+[^[:space:]]+[[:space:]]*\('
+        if line =~# '\v^fu%(n%(c%(t%(i%(o%(n|)|)|)|)|)|)[[:space:]]*\!=[[:space:]]+[^[:space:]]+[[:space:]]*\('
             let line = split(split(line)[1],"(")[0]
             call add(b:vichord_functions, line)
         endif
