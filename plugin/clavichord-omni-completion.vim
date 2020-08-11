@@ -466,6 +466,7 @@ augroup END
 
 let [ g:VCHRD_FUNC, g:VCHRD_PARAM, g:VCHRD_KEY, g:VCHRD_LINE ] = [ 0, 1, 2, 3 ]
 
+let g:vichord_omni_completion_loaded = 1
 """""""""""""""""" UTILITY FUNCTIONS
 
 function! Mapped(fn, l)
