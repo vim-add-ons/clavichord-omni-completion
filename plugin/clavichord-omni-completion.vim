@@ -536,7 +536,8 @@ function! FilteredNot(fn, l)
 endfunction
 
 function! DoesLineMatch(match, line)
-    return a:match =~# '\v^' . VimQuoteRegex(a:line) . '.*'
+    let line2 = substitute(a:line, '\v^[[:space:]]+',"","")
+    return a:match =~# '\v^' . VimQuoteRegex(line2) . '.*'
 endfunction
 
 function! CreateEmptyList(name)
