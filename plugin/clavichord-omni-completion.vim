@@ -460,7 +460,7 @@ endfunction
 "   being located, not only the preceding part.
 function s:getPrecedingBits(findstart)
     if a:findstart
-        let line = getbufline(bufnr(), line("."))[0]
+        let line = getline(".")
         let b:vichord_curline = line
         let curs_col = col(".")
         let b:vichord_cursor_col = curs_col
