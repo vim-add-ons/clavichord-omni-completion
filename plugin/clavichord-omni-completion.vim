@@ -53,6 +53,9 @@ endfunction
 " has the main task to perform the omni-completion, i.e.: to return the list of
 " matches to the text before the cursor.
 function VimComplete(findstart, base)
+    if getline(".") =~ '\v^[[:space:]]*\".*'
+        return -3
+    endif
     let entry_time = reltime()
     "echoh Constant
     "echom "::: COMPLETE" a:findstart "::: findstart ←" a:findstart "| line ←" [getline(".")] "| base ←" [a:base]
