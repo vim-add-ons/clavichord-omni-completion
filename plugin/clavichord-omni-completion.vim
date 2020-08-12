@@ -363,9 +363,16 @@ function s:completeKeywords(id, line_bits, line)
     let a:line_bits[-1] = a:line_bits[-1] =~ '^[[:space:]]$' ? '' : a:line_bits[-1]
 
     "echom "--ckeywords-- →→→ " . a:id . ' [f:0,p:1,k:2,l:3] / '. a:line_bits[-1]
-    if a:id == g:VCHRD_PARAM && a:line_bits[-1] =~ '\v^\$.*'
-        let a:line_bits[-1] = (a:line_bits[-1])[1:]
-        let pfx='$'
+    if a:id == g:VCHRD_PARAM && a:line =~ '\v\[%([slgba]:[a-zA-Z0-9_]*|[a-zA-Z0-9_]*)$'
+        let parameters_start = strridx(a:line, a:line_bits[-1])
+        let idx = match(a:line[parameters_start:],'\v<[slgba]:')
+        let idx = idx < 0 ? match(a:line[parameters_start:],'\v[a-zA-Z_]') : idx
+        let parameters_start = parameters_start + (idx < 0 ? 0 : idx)
+        let idx = match(a:line[parameters_start:],'\v\[')
+        let parameters_start += idx+1
+        let a:line_bits[-1] = a:line[parameters_start:]
+        "echom "× PARAMS × adjust-idx = " . parameters_start
+        let pfx=''
     elseif a:id == g:VCHRD_KEY && a:line_bits[-1] =~ '\v^[^\[]+\['
         let a:line_bits[-1] = substitute( a:line_bits[-1], '\v^[^\[]+\[', '', '' )
         let pfx=''
