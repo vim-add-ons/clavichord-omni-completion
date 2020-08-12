@@ -385,17 +385,12 @@ function s:completeKeywords(id, line_bits, line)
         let parameters_start += idx+1
         let a:line_bits[-1] = a:line[parameters_start:]
         "echom "× PARAMS × adjust-idx = " . parameters_start
-        let pfx=''
     elseif a:id == g:VCHRD_KEY && a:line_bits[-1] =~ '\v^[^\[]+\['
         let a:line_bits[-1] = substitute( a:line_bits[-1], '\v^[^\[]+\[', '', '' )
-        let pfx=''
     elseif a:id == g:VCHRD_LINE
         let a:line_bits[-1] = substitute(a:line,'\v^[[:space:]]*', '', '')
     elseif a:id == g:VCHRD_FUNC
         let a:line_bits[-1] = substitute(a:line_bits[-1],'\v^[[:space:]]*[^\.]*\.[[:space:]]*', '', '')
-        let pfx=''
-    else
-        let pfx=''
     endif
     "echom 'After: '.a:id.' / '.string(a:line_bits)
 
@@ -408,6 +403,9 @@ function s:completeKeywords(id, line_bits, line)
     else
         let result = filter(copy(gatherVariables[a:id]),
                     \ 'v:val =~# ''\v^''.quoted')
+    endif
+    if a:id == g:VCHRD_FUNC
+        call map(result, "v:val . '('")
     endif
     "echohl WarningMsg
     "echom "××× ckeywords ×××  ·•««" a:id "»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
