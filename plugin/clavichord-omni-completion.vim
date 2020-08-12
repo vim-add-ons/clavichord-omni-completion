@@ -402,23 +402,13 @@ function s:completeKeywords(id, line_bits, line)
     let l:count = 0
     let quoted = VimQuoteRegex(a:line_bits[-1])
     "echom "VimQuoteRegex(a:line_bits[-1]): " . quoted
-    for the_key in gatherVariables[a:id]
-        let l:count += 1
-        if a:id == g:VCHRD_LINE
-            if the_key =~# '\v^' . quoted
-                if the_key != a:line_bits[-1]
-                    call add(result, the_key)
-                endif
-            endif
-            if l:count >= 1500
-                break
-            endif
-        else
-            if the_key =~# '\v^' . quoted
-                call add(result, pfx.the_key)
-            endif
-        endif
-    endfor
+    if a:id == g:VCHRD_LINE
+        let result = filter(copy(gatherVariables[a:id]),
+                    \ 'v:val =~# ''\v^''.quoted && v:val != a:line_bits[-1]')
+    else
+        let result = filter(copy(gatherVariables[a:id]),
+                    \ 'v:val =~# ''\v^''.quoted')
+    endif
     "echohl WarningMsg
     "echom "××× ckeywords ×××  ·•««" a:id "»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
     "echohl None
