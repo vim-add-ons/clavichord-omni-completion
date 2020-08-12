@@ -17,6 +17,8 @@ completion's characteristics are:
    you'll be actually entering them. It'll also **mix-in** all the variables
    from (2).
 
+4. A fast, non-intrusive line completion that's always active.
+
 # Installation and Usage
 
 An auto-completion plugin
