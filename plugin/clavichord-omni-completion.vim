@@ -118,12 +118,20 @@ function VimComplete(findstart, base)
                         \ CompleteVimArrayAndHashKeys(1, a:base),
                         \ VimCompleteLines(1, a:base) ]
             let result = max( four_results )
+            " Ensure that the lower call count will be set.
             let winner = index( four_results, result )
+            let winner2 = index( four_results, result, winner + 1 )
+            if winner2 >= 0
+                let b:vichord_call_count = ((b:vichord_last_ccount_vars[winner])[0] < (b:vichord_last_ccount_vars[winner2])[0] ? (b:vichord_last_ccount_vars[winner])[0] : (b:vichord_last_ccount_vars[winner2])[0]) + 1
+            else
+                let b:vichord_call_count = (b:vichord_last_ccount_vars[winner])[0] + 1
+            endif
+        else
+            let b:vichord_call_count = (b:vichord_last_ccount_vars[winner])[0] + 1
         endif
         " Restart the cyclic renewal of the database variables from the point
         " where the specific object-kind completion finished the cycle in the
         " previous call to VimComplete.
-        let b:vichord_call_count = (b:vichord_last_ccount_vars[winner])[0] + 1
         let b:vichord_general_start = result
         "echom "Returning [a:findstart==1 VimComplete call]: " . string(result)
     else
@@ -352,7 +360,7 @@ function s:completeKeywords(id, line_bits, line)
     " Retrieve the complete list of Vim functions in the buffer on every
     " N-th call.
     if (b:vichord_call_count == 0) || ((b:vichord_call_count - a:id + 2) % 10 == 0)
-        "echom 'CALL: ' . b:vichord_call_count . ' - ' . a:id . ' + 2 % 10 == ' . ((b:vichord_call_count - a:id + 2) % 10)
+        "echom 'CALL: ' . b:vichord_call_count . ' ←—→ ' . a:id . ' + 2 % 10 == ' . ((b:vichord_call_count - a:id + 2) % 10)
         call s:gatherFunctions[a:id]()
     endif
 
