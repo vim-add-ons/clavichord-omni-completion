@@ -53,7 +53,7 @@ endfunction
 " has the main task to perform the omni-completion, i.e.: to return the list of
 " matches to the text before the cursor.
 function VimComplete(findstart, base)
-    if getline(".") =~ '\v^[[:space:]]*\".*'
+    if getline(".") =~ '\v^[[:space:]]*\"'
         return -3
     endif
 
@@ -301,8 +301,8 @@ function VimCompleteLines(findstart, base)
         " close of it).
         if b:vichord_cache_lines_active == 2 &&
                     \ enter_cstate == 2 &&
-                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.quoted_stripped.'.*' ) )
-            "echom 'CLOSE-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . ' →→ ' . matchstr( b:vichord_lines_cache, '\v^'.quoted_stripped.'.*' )
+                    \ empty( matchstr( b:vichord_lines_cache, '\v^'.quoted_stripped ) )
+            "echom 'CLOSE-PATH (2==2) … →→ 1…2: →→ ' . string(b:vichord_lines_cache[0:1]) . ' →→ ' . matchstr( b:vichord_lines_cache, '\v^'.quoted_stripped )
             let b:vichord_compl_lines_start = -3
             "echom '1/b:vichord_compl_lines_start:' . b:vichord_compl_lines_start
             return b:vichord_compl_lines_start
@@ -395,7 +395,7 @@ function s:completeKeywords(id, line_bits, line)
     for the_key in gatherVariables[a:id]
         let l:count += 1
         if a:id == g:VCHRD_LINE
-            if the_key =~# '\v^' . quoted . '.*'
+            if the_key =~# '\v^' . quoted
                 if the_key != a:line_bits[-1]
                     call add(result, the_key)
                 endif
@@ -404,7 +404,7 @@ function s:completeKeywords(id, line_bits, line)
                 break
             endif
         else
-            if the_key =~# '\v^' . quoted . '.*'
+            if the_key =~# '\v^' . quoted
                 call add(result, pfx.the_key)
             endif
         endif
@@ -601,7 +601,7 @@ function! FilteredNot(fn, l)
 endfunction
 
 function! DoesLineMatch(match, line)
-    return a:match =~# '\v^' . a:line . '.*'
+    return a:match =~# '\v^' . a:line
 endfunction
 
 function! CreateEmptyList(name)
