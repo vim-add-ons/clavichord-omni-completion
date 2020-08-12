@@ -70,7 +70,8 @@ function VimComplete(findstart, base)
     " processings, i.e.: it depends on the local (to the buffer) call count
     " of the plugin, however the storage variable is s: -session, to limit the
     " memory usage.
-    if b:vichord_call_count % 5 == 0
+    if b:vichord_call_count % 5 == 0 && b:vichord_last_all_lines_get_count != b:vichord_call_count
+        let b:vichord_last_all_lines_get_count = b:vichord_call_count
         let s:vichord_all_buffers_lines = []
         for bufnum in uniq(sort(g:vichord_vim_buffers))
             if buflisted(bufnum)
