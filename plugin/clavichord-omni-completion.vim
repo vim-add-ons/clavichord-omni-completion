@@ -164,7 +164,8 @@ function VimComplete(findstart, base)
     "echoh Error
     "echom "××× COMPLETE" a:findstart "×××  ·•««" get(l:,'winner',-1)"»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
     "echoh None
-    "echom "Returning:" len(result)
+    "echom "→→→→→ Returning |result| ≈≈≈ " len(result)
+    let g:vichord_summaric_completion_time += reltimefloat(reltime(entry_time))
     return result
 endfunction
 
@@ -418,7 +419,6 @@ function s:completeKeywords(id, line_bits, line)
             endif
         endif
     endfor
-    let g:vichord_summaric_completion_time += reltimefloat(reltime(entry_time))
     "echohl WarningMsg
     "echom "××× ckeywords ×××  ·•««" a:id "»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
     "echohl None
@@ -427,7 +427,7 @@ endfunction
 
 " FUNCTION: s:gatherFunctionNames()
 " Buffer-contents processor for Vim *function* names. Stores all the detected
-" Vim function names in the list b:vichord_parameters.
+" Vim function names in the list b:vichord_functions.
 function s:gatherFunctionNames()
     " Prepare, i.e.: zero the buffer collection-variable.
     let b:vichord_functions = []
