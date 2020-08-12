@@ -187,7 +187,7 @@ function CompleteVimFunctions(findstart, base)
         if line_bits[-1] !~ '\v\k{1,}$'
             "echom "-3 ← first"
             let b:vichord_compl_functions_start = -3
-        elseif len(line_bits_ne) >= 2 && line[idx:] !~ '\v(^([[:space:]]*(\||if|elseif|call)[[:space:]]+|[[:space:]]*)\k{1,}|([^\.]|^)\.[[:space:]]*\k{1,})$'
+        elseif len(line_bits_ne) >= 2 && line[idx:] !~ '\v(^([[:space:]]*(\>|\<|\>\=|\<\=|\=|\=\=|\!\=|\=\~|\!\~|\=\~\#|\|\||\&\&|\!|\||if|elseif|call)[[:space:]]+|[[:space:]]*)\k{1,}|([^\.]|^)\.[[:space:]]*\k{1,})$'
             "echom "-3 ← second (line[idx:] ↔ " . line[idx:] .")"
             let b:vichord_compl_functions_start = -3
         else
