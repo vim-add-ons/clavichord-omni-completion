@@ -1,4 +1,3 @@
-"
 " « Clavichord » Vim Omni Completion For The VimL Language.
 " Copyright (c) 2020 Sebastian Gniazdowski.
 " License: Gnu GPL v3.
@@ -49,7 +48,6 @@ function VimOmniComplBufInit()
         call add(g:vichord_vim_buffers, bufnr())
     endif
 endfunction
-
 " FUNCTION: VimComplete()
 " The main function of this plugin (assigned to the `omnifunc` set option) that
 " has the main task to perform the omni-completion, i.e.: to return the list of
@@ -572,6 +570,9 @@ augroup END
 let [ g:VCHRD_FUNC, g:VCHRD_PARAM, g:VCHRD_KEY, g:VCHRD_LINE ] = [ 0, 1, 2, 3 ]
 
 let g:vichord_omni_completion_loaded = 1
+
+set completeopt+=menuone,noinsert
+set completeopt-=noselect
 """""""""""""""""" UTILITY FUNCTIONS
 
 function! Mapped(fn, l)
