@@ -207,7 +207,7 @@ endfunction
 " FUNCTION: CompleteVimParameters()
 " The function is a complete-function which returns matching Vim-parameter names.
 function CompleteVimParameters(findstart, base)
-    let [line_bits,line] = s:getPrecedingBits(a:findstart, '\.')
+    let [line_bits,line] = s:getPrecedingBits(a:findstart, '\.\[')
 
     " First call — basically return 0. Additionally (it's unused value),
     " remember the current column.
@@ -224,6 +224,9 @@ function CompleteVimParameters(findstart, base)
             let idx = idx < 0 ? match(line[b:vichord_compl_parameters_start:],'\v[a-zA-Z_]') : idx
             "echom "∞ PARAMS ∞ adjust-idx = " . idx
             let b:vichord_compl_parameters_start = b:vichord_compl_parameters_start + (idx < 0 ? 0 : idx)
+            " Handle the var[ case.
+            let idx = match(line[b:vichord_compl_parameters_start:],'\v\[')
+            let b:vichord_compl_parameters_start += idx+1
             " Support the from-void text completing. It's however disabled on
             " the upper level (above).
             let b:vichord_compl_parameters_start += line_bits[-1] =~ '^[[:space:]]$' ? 1 : 0
