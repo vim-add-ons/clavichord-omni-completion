@@ -80,12 +80,13 @@ function VimComplete(findstart, base)
     endif
 
     if a:findstart
+        let b:vichord_functions_cache = []
         let got_winner = 0
         call CompleteVimFunctions(1, a:base)
         if b:vichord_compl_functions_start >= 0
-            let result_compl = CompleteVimFunctions(0, a:base)
-            "echom 'FUNCTIONS 1/len(result_compl)='.len(result_compl)
-            if len(result_compl)
+            let b:vichord_functions_cache = CompleteVimFunctions(0, a:base)
+            "echom 'FUNCTIONS 1/len(result_compl)='.len(b:vichord_functions_cache)
+            if !empty(b:vichord_functions_cache)
                 let result = b:vichord_compl_functions_start
                 let winner = 0
                 let got_winner = 1
@@ -141,8 +142,8 @@ function VimComplete(findstart, base)
                 continue
             endif
             let b:vichord_last_ccount_vars[id][0] = b:vichord_call_count
-            let result_im = s:completerFunctions[id](0, a:base)
-            if id == g:VCHRD_LINE && len(result_im)
+            let result_im = id == 0 ? b:vichord_functions_cache : s:completerFunctions[id](0, a:base)
+            if id == g:VCHRD_LINE && !empty(result_im)
                 let winner = - g:VCHRD_LINE
                 let result = result_im
                 break
