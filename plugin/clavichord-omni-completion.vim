@@ -120,6 +120,7 @@ function VimComplete(findstart, base)
         " where the specific object-kind completion finished the cycle in the
         " previous call to VimComplete.
         let b:vichord_call_count = (b:vichord_last_ccount_vars[winner])[0] + 1
+        let b:vichord_general_start = result
         "echom "Returning [a:findstart==1 VimComplete call]: " . string(result)
     else
         let result = []
@@ -132,7 +133,10 @@ function VimComplete(findstart, base)
         let winner = index( four_results, result_max )
 
         for id in range(4)
-            if four_results[id] < 0 | continue | endif
+            if four_results[id] < 0 ||
+                        \ (four_results[id] != b:vichord_general_start && id != g:VCHRD_LINE)
+                continue
+            endif
             let b:vichord_last_ccount_vars[id][0] = b:vichord_call_count
             let result_im = s:completerFunctions[id](0, a:base)
             if id == g:VCHRD_LINE && len(result_im)
@@ -381,7 +385,7 @@ function s:completeKeywords(id, line_bits, line)
                     call add(result, the_key)
                 endif
             endif
-            if l:count >= 250
+            if l:count >= 1500
                 break
             endif
         else
