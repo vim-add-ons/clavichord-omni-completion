@@ -438,23 +438,10 @@ function s:gatherParameterNames()
     " Prepare, i.e.: zero the buffer collection-variable.
     let b:vichord_parameters = []
 
-    " Iterate over the lines in the buffer searching for a Vim parameter name.
-    for line in s:vichord_all_buffers_lines
-        let idx = match(line, '\v[slgba]:[a-zA-Z0-9_]+')
-        while idx >= 0
-            let res_list = matchlist(line, '\v[slgba]:[a-zA-Z0-9_]+', idx)
-            call add(b:vichord_parameters, res_list[0])
-            let idx = match(line, '\v[slgba]:[a-zA-Z0-9_]+', idx+len(res_list[0])+2)
-        endwhile
-        " Try to optimize as much as possible…
-        if g:vichord_search_in_let && match(line, '\v^[[:space:]]*let') >= 0
-            let mres = matchlist(line, '\vlet[[:space:]]+%([slgba]:)@<!([a-zA-Z0-9_]+)')
-            if !empty(mres)
-                call add(b:vichord_parameters, mres[1])
-            endif
-        endif
-    endfor
+    let candidates = filter(copy(s:vichord_all_buffers_lines),
+                \ 'v:val =~# ''\v[slgba]:[a-zA-Z0-9_]+''')
 
+    call map(candidates, function("s:gatherParametersFromLine"))
     " Uniqify the resulting list of Vim parameter names. The uniquification
     " requires also sorting the input list.
     call uniq(sort(b:vichord_parameters))
@@ -522,7 +509,7 @@ function s:getPrecedingBits(findstart, ...)
     endif
 
     let additional = len(a:000) > 0 ? a:000[0] : ""
-    let line_bits = split(line,'\v[[:space:]\{\}\(\)\#\%\=\^\!\*'.additional.']')
+    let line_bits = split(line,'\v[[:space:]\{\}\(\)\#\%\^\!\*'.additional.']')
     let line_bits = len(line_bits) >= 1 ? line_bits : [len(line) > 0 ? (line)[len(line)-1] : ""]
 
     if len(line_bits) > 1
@@ -607,4 +594,22 @@ function! FunConcat(f, ...)
     return a:f."('".join(a:000, "', '")."')"
 endfunction
 
+"""""""""""""""""" HELPER FUNCTIONS
+
+function! s:gatherParametersFromLine(idx,line)
+    let idx = match(a:line, '\v[slgba]:[a-zA-Z0-9_]+')
+    while idx >= 0
+        let res_list = matchlist(a:line, '\v[slgba]:[a-zA-Z0-9_]+', idx)
+        call add(b:vichord_parameters, res_list[0])
+        let idx = match(a:line, '\v[slgba]:[a-zA-Z0-9_]+', idx+len(res_list[0])+2)
+    endwhile
+    " Try to optimize as much as possible…
+    if g:vichord_search_in_let && match(a:line, '\v^[[:space:]]*let') >= 0
+        let mres = matchlist(a:line, '\vlet[[:space:]]+%([slgba]:)@<!([a-zA-Z0-9_]+)')
+        if !empty(mres)
+            call add(b:vichord_parameters, mres[1])
+        endif
+    endif
+    return ''
+endfunction
 " vim:set ft=vim tw=80 et sw=4 sts=4 foldmethod=syntax:
