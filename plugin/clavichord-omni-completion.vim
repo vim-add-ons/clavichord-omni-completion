@@ -144,6 +144,7 @@ function VimComplete(findstart, base)
                 let result = result_im
                 break
             endif
+            "echom "MAIN: Appending 1…2 →→→" result_im[0:1]
             let result += result_im
         endfor
         call uniq(sort(result))
@@ -151,6 +152,7 @@ function VimComplete(findstart, base)
     "echoh Error
     "echom "××× COMPLETE" a:findstart "×××  ·•««" get(l:,'winner',-1)"»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
     "echoh None
+    "echom "Returning:" len(result)
     return result
 endfunction
 
