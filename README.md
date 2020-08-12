@@ -4,9 +4,9 @@ Cla**Vi**Chord is a plugin that implements a smart **VimL** omni completion. The
 completion's characteristics are:
 
 1. It'll detect all function-names declared inside `filetype=vim` buffers **and
-   complete them only on the command-position**, i.e.: only as the first keyword
-   in a line or following a command-separator like **|** (`fun1` **|** `fun2`,
-   etc.), a dot **.**, etc.
+   complete them only on the command-position**, i.e.: only after a **call …**
+   or following a command-separator like **|** (`fun1` **|** `fun2`, etc.),
+   a dot **.**, etc.
 
 2. It'll detect all variable names, i.e.: only keywords following a **g:…**,
    **b:…**, **l:…**, etc. and **complete them only after a dot or at command
