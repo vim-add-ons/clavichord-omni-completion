@@ -422,14 +422,10 @@ function s:gatherFunctionNames()
     " Prepare, i.e.: zero the buffer collection-variable.
     let b:vichord_functions = []
 
-    " Iterate over the lines in the buffer searching for a function name.
-    for line in s:vichord_all_buffers_lines
-        let mres = matchlist(line, '\v^[[:space:]]*fu%[nction][[:space:]]*\!=[[:space:]]+([^[:space:]]+)[[:space:]]*\(')
-        if !empty(mres)
-            call add(b:vichord_functions, mres[1])
-        endif
-    endfor
-
+    " First gather the proper lines of the buffers.
+    let b:vichord_functions = filter(copy(s:vichord_all_buffers_lines), 'v:val =~# ''\v^[[:space:]]*fu%[nction][[:space:]]*\!=[[:space:]]+([^[:space:]]+)[[:space:]]*\(''')
+    " Then extract the function names.
+    call map( b:vichord_functions, 'matchlist(v:val, ''\v^[[:space:]]*fu%[nction][[:space:]]*\!=[[:space:]]+([^[:space:]]+)[[:space:]]*\('')[1]' )
     " Uniqify the resulting list of Vim function names. The uniquification
     " requires also sorting the input list.
     call uniq(sort(b:vichord_functions))
