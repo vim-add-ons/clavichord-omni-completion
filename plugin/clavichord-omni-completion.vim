@@ -205,7 +205,7 @@ endfunction
 " FUNCTION: CompleteVimParameters()
 " The function is a complete-function which returns matching Vim-parameter names.
 function CompleteVimParameters(findstart, base)
-    let [line_bits,line] = s:getPrecedingBits(a:findstart)
+    let [line_bits,line] = s:getPrecedingBits(a:findstart, '\.')
 
     " First call — basically return 0. Additionally (it's unused value),
     " remember the current column.
