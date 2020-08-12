@@ -32,6 +32,7 @@
 " It initializes the omni completion for the buffer.
 function VimOmniComplBufInit()
     let b:vichord_call_count = 0
+    let b:vichord_last_all_lines_get_count = -1
     let b:vichord_cache_lines_active = 0
     let b:vichord_last_completed_line = ''
     let [ b:vichord_last_fccount, b:vichord_last_pccount, 
@@ -45,6 +46,7 @@ function VimOmniComplBufInit()
         else
             setlocal completefunc=VimComplete
         endif
+        call add(g:vichord_vim_buffers, bufnr())
     endif
 endfunction
 
@@ -56,6 +58,7 @@ function VimComplete(findstart, base)
     if getline(".") =~ '\v^[[:space:]]*\".*'
         return -3
     endif
+
     let entry_time = reltime()
     "echoh Constant
     "echom "::: COMPLETE" a:findstart "::: findstart ←" a:findstart "| line ←" [getline(".")] "| base ←" [a:base]
@@ -69,7 +72,7 @@ function VimComplete(findstart, base)
     " memory usage.
     if b:vichord_call_count % 5 == 0
         let s:vichord_all_buffers_lines = []
-        for bufnum in range(last_buffer_nr()+1)
+        for bufnum in uniq(sort(g:vichord_vim_buffers))
             if buflisted(bufnum)
                 let s:vichord_all_buffers_lines += map(getbufline(bufnum, 1,"$"), 'substitute(v:val,''\v^[[:space:]]*'', '''', '''')')
             endif
@@ -557,6 +560,7 @@ let s:completerFunctions = [ function("CompleteVimFunctions"),
             \ function("CompleteVimArrayAndHashKeys"),
             \ function("VimCompleteLines") ]
 
+let g:vichord_vim_buffers = []
 let g:vichord_summaric_completion_time = 0.0
 
 augroup VimOmniComplInitGroup
