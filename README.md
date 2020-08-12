@@ -32,6 +32,6 @@ your favourite Vim plugin manager or manually copy the script to the
 
 # Presentation
 
-[![asciicast](https://asciinema.org/a/351814.svg)](https://asciinema.org/a/351814)
+[![asciicast](https://asciinema.org/a/352899.svg)](https://asciinema.org/a/352899)
 
 <!-- vim:set ft=markdown tw=80 fo+=a1n autoindent: -->
