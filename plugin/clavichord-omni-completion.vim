@@ -11,7 +11,8 @@
 " 
 " This plugin does no more than setting `omnifunc` (or `completefunc` — see
 " below) set variable, which allows to invoke the completion via Ctrl-X Ctrl-O
-" (or Ctrl-X Ctrl-U).
+" (or Ctrl-X Ctrl-U). You may want to use g:zoc_auto_insert if using this plugin
+" this way, see below.
 " 
 " Configuration Variables:
 " ------------------------
