@@ -622,4 +622,4 @@ function! s:gatherParametersFromLine(idx,line)
     endif
     return ''
 endfunction
-" vim:set ft=vim tw=80 et sw=4 sts=4 foldmethod=syntax:
+" vim:set ft=vim tw=80 et sw=4 sts=4 foldmethod=marker:
