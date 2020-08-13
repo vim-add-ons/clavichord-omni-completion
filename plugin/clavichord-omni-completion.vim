@@ -25,6 +25,11 @@
 "   even when they're used without the l:… prefix) (default: 0), example:
 "       let g:vichord_search_in_let = 1
 "
+" — g:vichord_auto_insert — whether to enable inserting of the first candidate
+"   on the activation of the completion on ^X^O — it'll normally only be
+"   selected and the buffer/the text will remain unchanged after pressing the
+"   keys.
+"
 
 " FUNCTION: VimOmniComplBufInit()
 " A function that's called when the buffer is loaded and its filetype is known.
@@ -44,6 +49,12 @@ function VimOmniComplBufInit()
             setlocal omnifunc=VimComplete
         else
             setlocal completefunc=VimComplete
+        endif
+        setlocal completeopt=menuone,noinsert
+        " Ensure the first-item selection is enabled (paranoid).
+        setlocal completeopt-=noselect
+        if get(g:, 'vichord_auto_insert', 0)
+            setlocal completeopt-=noinsert
         endif
         call add(g:vichord_vim_buffers, bufnr())
     endif
