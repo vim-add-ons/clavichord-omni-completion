@@ -174,7 +174,7 @@ function VimComplete(findstart, base)
         call uniq(sort(result))
     endif
     "echoh Error
-    "echom "××× COMPLETE" a:findstart "×××  ·•««" get(l:,'winner',-1)"»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
+    "echom "⟁⟁⟁ COMPLETE" a:findstart "⟁⟁⟁  ·•««" get(l:,'winner',-1)"»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
     "echoh None
     "echom "→→→→→ Returning |result| ≈≈≈ " len(result)
     let g:vichord_summaric_completion_time += reltimefloat(reltime(entry_time))
@@ -396,7 +396,7 @@ function s:completeKeywords(id, line_bits, line)
         let idx = match(a:line[parameters_start:],'\v\[')
         let parameters_start += idx+1
         let a:line_bits[-1] = a:line[parameters_start:]
-        "echom "× PARAMS × adjust-idx = " . parameters_start
+        "echom "⟁ PARAMS ⟁ adjust-idx = " . parameters_start
     elseif a:id == g:VCHRD_KEY && a:line_bits[-1] =~ '\v^[^\[]+\['
         let a:line_bits[-1] = substitute( a:line_bits[-1], '\v^[^\[]+\[', '', '' )
     elseif a:id == g:VCHRD_LINE
@@ -420,7 +420,7 @@ function s:completeKeywords(id, line_bits, line)
         call map(result, "v:val . '('")
     endif
     "echohl WarningMsg
-    "echom "××× ckeywords ×××  ·•««" a:id "»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
+    "echom "⟁⟁⟁ ckeywords ⟁⟁⟁  ·•««" a:id "»»•·  ∞ elapsed-time ∞  ≈≈≈" split(reltimestr(reltime(entry_time)))[0]
     "echohl None
     return result
 endfunction
