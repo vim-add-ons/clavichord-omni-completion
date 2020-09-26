@@ -22,8 +22,9 @@
 "       let g:vichord_use_cfu_setting = 1
 "
 " — g:vichord_search_in_let — whether to search for variables in "let …"
-"   statements (slows down a bit, however it allows to complete local variables
-"   even when they're used without the l:… prefix) (default: 0), example:
+"   statements (this slows down the completion a bit, however it allows to
+"   complete local variables even when they're used without the l:… prefix)
+"   (default: 1), example:
 "       let g:vichord_search_in_let = 1
 "
 " — g:vichord_auto_insert — whether to enable inserting of the first candidate
@@ -44,7 +45,7 @@ function VimOmniComplBufInit()
                 \ b:vichord_last_kccount, b:vichord_last_lccount ] = [ [-1], [-1], [-1], [-1] ]
     let b:vichord_last_ccount_vars = [ b:vichord_last_fccount, b:vichord_last_pccount, 
                 \ b:vichord_last_kccount, b:vichord_last_lccount ]
-    let g:vichord_search_in_let = get(g:,"vichord_search_in_let", 0)
+    let g:vichord_search_in_let = get(g:,"vichord_search_in_let", 1)
     if &ft == 'vim'
         if ! get(g:,'vichord_use_cfu_setting','0')
             setlocal omnifunc=VimComplete
