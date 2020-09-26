@@ -84,10 +84,16 @@ function VimComplete(findstart, base)
     if b:vichord_call_count % 5 == 0 && b:vichord_last_all_lines_get_count != b:vichord_call_count
         let b:vichord_last_all_lines_get_count = b:vichord_call_count
         let s:vichord_all_buffers_lines = []
+        let b:vichord_current_buffer_lines = [] 
         for bufnum in uniq(sort(g:vichord_vim_buffers))
             if buflisted(bufnum)
                 "echom "Appending of" bufnum b:vichord_call_count
-                let s:vichord_all_buffers_lines += map(getbufline(bufnum, 1,"$"), 'substitute(v:val,''\v^[[:space:]]*'', '''', '''')')
+                if bufnum == bufnr()
+                    let b:vichord_current_buffer_lines = map(getbufline(bufnum, 1,"$"), 'substitute(v:val,''\v^[[:space:]]*'', '''', '''')')
+                    let s:vichord_all_buffers_lines += b:vichord_current_buffer_lines
+                else
+                    let s:vichord_all_buffers_lines += map(getbufline(bufnum, 1,"$"), 'substitute(v:val,''\v^[[:space:]]*'', '''', '''')')
+                endif
             endif
         endfor
     endif
@@ -103,7 +109,7 @@ function VimComplete(findstart, base)
                 let result = b:vichord_compl_functions_start
                 let winner = 0
                 let got_winner = 1
-                let to_declare = [ "vichord_compl_parameters_start",
+                let to_declare = [ "vichord_compl_variables_start",
                             \ "vichord_compl_arrays_keys_start",
                             \ "vichord_compl_lines_start" ]
                 for var in to_declare | let b:[var] = -3 | endfor
@@ -119,7 +125,7 @@ function VimComplete(findstart, base)
                     let winner = 3
                     let got_winner = 1
                     let to_declare = [ "vichord_compl_functions_start",
-                                \ "vichord_compl_parameters_start",
+                                \ "vichord_compl_variables_start",
                                 \ "vichord_compl_arrays_keys_start" ]
                     for var in to_declare | let b:[var] = -3 | endfor
                 endif
@@ -151,7 +157,7 @@ function VimComplete(findstart, base)
         let result = []
 
         let four_results = [ b:vichord_compl_functions_start,
-                    \ b:vichord_compl_parameters_start,
+                    \ b:vichord_compl_variables_start,
                     \ b:vichord_compl_arrays_keys_start,
                     \ b:vichord_compl_lines_start ]
         let result_max = max( four_results )
@@ -231,7 +237,7 @@ function CompleteVimFunctions(findstart, base)
 endfunction
 
 " FUNCTION: CompleteVimVariables()
-" The function is a complete-function which returns matching Vim-parameter names.
+" The function is a complete-function which returns matching Vim-variable names.
 function CompleteVimVariables(findstart, base)
     let [line_bits,line] = s:getPrecedingBits(a:findstart, '\.\[')
 
@@ -239,34 +245,34 @@ function CompleteVimVariables(findstart, base)
     " remember the current column.
     if a:findstart
         if line_bits[-1] !~ '\v^%([slgba]:[a-zA-Z0-9_]*|[a-zA-Z0-9_]+)$'
-            "echom "Improper line_bits for parameters [". line_bits[-1] ."]"
-            let b:vichord_compl_parameters_start = -3
+            "echom "Improper line_bits for variables [". line_bits[-1] ."]"
+            let b:vichord_compl_variables_start = -3
         else
-            let b:vichord_compl_parameters_start = strridx(line, line_bits[-1])
-            "echom "∞ PARAMS ∞ »» Searching strridx('". line . "', '" . line_bits[-1] . "'), found: ". b:vichord_compl_parameters_start
+            let b:vichord_compl_variables_start = strridx(line, line_bits[-1])
+            "echom "∞ PARAMS ∞ »» Searching strridx('". line . "', '" . line_bits[-1] . "'), found: ". b:vichord_compl_variables_start
             " First try to orientate on the colon…
-            let idx = match(line[b:vichord_compl_parameters_start:],'\v<[slgba]:')
+            let idx = match(line[b:vichord_compl_variables_start:],'\v<[slgba]:')
             " …if it fails, then try to on the alpha-numerics and underscore.
-            let idx = idx < 0 ? match(line[b:vichord_compl_parameters_start:],'\v[a-zA-Z_]') : idx
+            let idx = idx < 0 ? match(line[b:vichord_compl_variables_start:],'\v[a-zA-Z_]') : idx
             "echom "∞ PARAMS ∞ adjust-idx = " . idx
-            let b:vichord_compl_parameters_start = b:vichord_compl_parameters_start + (idx < 0 ? 0 : idx)
+            let b:vichord_compl_variables_start = b:vichord_compl_variables_start + (idx < 0 ? 0 : idx)
             " Handle the var[ case.
-            let idx = match(line[b:vichord_compl_parameters_start:],'\v\[')
-            let b:vichord_compl_parameters_start += idx+1
+            let idx = match(line[b:vichord_compl_variables_start:],'\v\[')
+            let b:vichord_compl_variables_start += idx+1
             " Support the from-void text completing. It's however disabled on
             " the upper level (above).
-            let b:vichord_compl_parameters_start += line_bits[-1] =~ '^[[:space:]]$' ? 1 : 0
+            let b:vichord_compl_variables_start += line_bits[-1] =~ '^[[:space:]]$' ? 1 : 0
         endif
-        "echom 'b:vichord_compl_parameters_start:' . b:vichord_compl_parameters_start
-        return b:vichord_compl_parameters_start
+        "echom 'b:vichord_compl_variables_start:' . b:vichord_compl_variables_start
+        return b:vichord_compl_variables_start
     else
-        " Detect the matching Vim parameter names and return them.
+        " Detect the matching Vim variable names and return them.
         return s:completeKeywords(g:VCHRD_PARAM, line_bits, line)
     endif
 endfunction
 
 " FUNCTION: CompleteVimArrayAndHashKeys()
-" The function is a complete-function which returns matching Vim-parameter names.
+" The function is a complete-function which returns matching Vim-variable names.
 function CompleteVimArrayAndHashKeys(findstart, base)
     let [line_bits,line] = s:getPrecedingBits(a:findstart)
 
@@ -367,7 +373,7 @@ endfunction
 
 " FUNCTION: s:completeKeywords()
 " A general-purpose, variadic backend function, which obtains the request on the
-" type of the keywords (functions, parameters or array keys) to complete and
+" type of the keywords (functions, variables or array keys) to complete and
 " performs the operation.
 function s:completeKeywords(id, line_bits, line)
     let entry_time = reltime()
@@ -379,9 +385,9 @@ function s:completeKeywords(id, line_bits, line)
     endif
 
     " Ensure that the buffer-variables exist
-    let to_declare = filter([ "vichord_functions", "vichord_parameters", "vichord_array_and_hash_keys" ], '!exists("b:".v:val)')
+    let to_declare = filter([ "vichord_functions", "vichord_variables", "vichord_array_and_hash_keys" ], '!exists("b:".v:val)')
     for bufvar in to_declare | let b:[bufvar] = [] | endfor
-    let gatherVariables = [ b:vichord_functions, b:vichord_parameters, 
+    let gatherVariables = [ b:vichord_functions, b:vichord_variables, 
                 \ b:vichord_array_and_hash_keys, s:vichord_all_buffers_lines ]
 
     " Detect the matching Vim-object names and store them for returning.
@@ -390,14 +396,14 @@ function s:completeKeywords(id, line_bits, line)
 
     "echom "--ckeywords-- →→→ " . a:id . ' [f:0,p:1,k:2,l:3] / '. a:line_bits[-1]
     if a:id == g:VCHRD_PARAM && a:line =~ '\v\[%([slgba]:[a-zA-Z0-9_]*|[a-zA-Z0-9_]*)$'
-        let parameters_start = strridx(a:line, a:line_bits[-1])
-        let idx = match(a:line[parameters_start:],'\v<[slgba]:')
-        let idx = idx < 0 ? match(a:line[parameters_start:],'\v[a-zA-Z_]') : idx
-        let parameters_start = parameters_start + (idx < 0 ? 0 : idx)
-        let idx = match(a:line[parameters_start:],'\v\[')
-        let parameters_start += idx+1
-        let a:line_bits[-1] = a:line[parameters_start:]
-        "echom "⟁ PARAMS ⟁ adjust-idx = " . parameters_start
+        let variables_start = strridx(a:line, a:line_bits[-1])
+        let idx = match(a:line[variables_start:],'\v<[slgba]:')
+        let idx = idx < 0 ? match(a:line[variables_start:],'\v[a-zA-Z_]') : idx
+        let variables_start = variables_start + (idx < 0 ? 0 : idx)
+        let idx = match(a:line[variables_start:],'\v\[')
+        let variables_start += idx+1
+        let a:line_bits[-1] = a:line[variables_start:]
+        "echom "⟁ PARAMS ⟁ adjust-idx = " . variables_start
     elseif a:id == g:VCHRD_KEY && a:line_bits[-1] =~ '\v^[^\[]+\['
         let a:line_bits[-1] = substitute( a:line_bits[-1], '\v^[^\[]+\[', '', '' )
     elseif a:id == g:VCHRD_LINE
@@ -443,29 +449,29 @@ function s:gatherFunctionNames()
 endfunction
 
 " FUNCTION: s:gatherParameterNames()
-" Buffer-contents processor for Vim *parameter* names. Stores all the detected
-" Vim parameter names in the list b:vichord_parameters.
+" Buffer-contents processor for Vim *variable* names. Stores all the detected
+" Vim variable names in the list b:vichord_variables.
 function s:gatherParameterNames()
     " Prepare, i.e.: zero the buffer collection-variable.
-    let b:vichord_parameters = []
+    let b:vichord_variables = []
 
     let candidates = filter(copy(s:vichord_all_buffers_lines),
                 \ 'v:val =~# ''\v[slgba]:[a-zA-Z0-9_]+''')
 
     call map(candidates, function("s:gatherParametersFromLine"))
-    " Uniqify the resulting list of Vim parameter names. The uniquification
+    " Uniqify the resulting list of Vim variable names. The uniquification
     " requires also sorting the input list.
-    call uniq(sort(b:vichord_parameters))
+    call uniq(sort(b:vichord_variables))
 endfunction
 
 " FUNCTION: s:gatherArrayAndHashKeys()
-" Buffer-contents processor for Vim *parameter* names. Stores all the detected
-" Vim parameter names in the list b:vichord_parameters.
+" Buffer-contents processor for Vim *variable* names. Stores all the detected
+" Vim variable names in the list b:vichord_variables.
 function s:gatherArrayAndHashKeys()
     " Prepare, i.e.: zero the buffer collection-variable.
     let b:vichord_array_and_hash_keys = []
 
-    " Iterate over the lines in the buffer searching for a Vim parameter name.
+    " Iterate over the lines in the buffer searching for a Vim variable name.
     for line in s:vichord_all_buffers_lines
         let idx = match(line, '\v([slgba]:|)[a-zA-Z0-9_]+\[[^\]]+\]')
         while idx >= 0
@@ -482,14 +488,14 @@ function s:gatherArrayAndHashKeys()
         endwhile
     endfor
 
-    " Uniqify the resulting list of Vim parameter names. The uniquification
+    " Uniqify the resulting list of Vim variable names. The uniquification
     " requires also sorting the input list.
     call uniq(sort(b:vichord_array_and_hash_keys))
 endfunction
 
 " FUNCTION: s:gatherLines()
-" Buffer-contents processor for Vim *parameter* names. Stores all the detected
-" Vim parameter names in the list b:vichord_parameters.
+" Buffer-contents processor for Vim *variable* names. Stores all the detected
+" Vim variable names in the list b:vichord_variables.
 function s:gatherLines()
 endfunction
 
@@ -504,7 +510,7 @@ endfunction
 " - SomeTextSomeText SomeOtherText
 "   ……………………↑ <the cursor>.
 " What will be completed, will be:
-" - the matching keywords (functions, parameters, etc.) that match:
+" - the matching keywords (functions, variables, etc.) that match:
 "   SomeTextSomeText,
 " - so the completion takes the whole part in which the cursor currently is
 "   being located, not only the preceding part.
@@ -611,14 +617,14 @@ function! s:gatherParametersFromLine(idx,line)
     let idx = match(a:line, '\v[slgba]:[a-zA-Z0-9_]+')
     while idx >= 0
         let res_list = matchlist(a:line, '\v[slgba]:[a-zA-Z0-9_]+', idx)
-        call add(b:vichord_parameters, res_list[0])
+        call add(b:vichord_variables, res_list[0])
         let idx = match(a:line, '\v[slgba]:[a-zA-Z0-9_]+', idx+len(res_list[0])+2)
     endwhile
     " Try to optimize as much as possible…
     if g:vichord_search_in_let && match(a:line, '\v^[[:space:]]*let') >= 0
         let mres = matchlist(a:line, '\vlet[[:space:]]+%([slgba]:)@<!([a-zA-Z0-9_]+)')
         if !empty(mres)
-            call add(b:vichord_parameters, mres[1])
+            call add(b:vichord_variables, mres[1])
         endif
     endif
     return ''
