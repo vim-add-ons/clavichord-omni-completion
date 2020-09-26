@@ -127,7 +127,7 @@ function VimComplete(findstart, base)
         endif
         if ! got_winner 
             let four_results = [ b:vichord_compl_functions_start,
-                        \ CompleteVimParameters(1, a:base),
+                        \ CompleteVimVariables(1, a:base),
                         \ CompleteVimArrayAndHashKeys(1, a:base),
                         \ VimCompleteLines(1, a:base) ]
             let result = max( four_results )
@@ -230,9 +230,9 @@ function CompleteVimFunctions(findstart, base)
     endif
 endfunction
 
-" FUNCTION: CompleteVimParameters()
+" FUNCTION: CompleteVimVariables()
 " The function is a complete-function which returns matching Vim-parameter names.
-function CompleteVimParameters(findstart, base)
+function CompleteVimVariables(findstart, base)
     let [line_bits,line] = s:getPrecedingBits(a:findstart, '\.\[')
 
     " First call — basically return 0. Additionally (it's unused value),
@@ -549,7 +549,7 @@ let s:gatherFunctions = [ function("s:gatherFunctionNames"),
             \ function("s:gatherLines") ]
 
 let s:completerFunctions = [ function("CompleteVimFunctions"),
-            \ function("CompleteVimParameters"),
+            \ function("CompleteVimVariables"),
             \ function("CompleteVimArrayAndHashKeys"),
             \ function("VimCompleteLines") ]
 
