@@ -81,11 +81,11 @@ function VimComplete(findstart, base)
     " processings, i.e.: it depends on the local (to the buffer) call count
     " of the plugin, however the storage variable is s: -session, to limit the
     " memory usage.
-    if b:vichord_call_count % 5 == 0 && b:vichord_last_all_lines_get_count != b:vichord_call_count
+    if b:vichord_call_count % 10 == 0 && b:vichord_last_all_lines_get_count != b:vichord_call_count
         let b:vichord_last_all_lines_get_count = b:vichord_call_count
         let s:vichord_all_buffers_lines = []
         let b:vichord_current_buffer_lines = [] 
-        for bufnum in uniq(sort(g:vichord_vim_buffers))
+        for bufnum in uniq(extend([bufnr()],sort(g:vichord_vim_buffers)))
             if buflisted(bufnum)
                 "echom "Appending of" bufnum b:vichord_call_count
                 if bufnum == bufnr()
@@ -96,6 +96,9 @@ function VimComplete(findstart, base)
                 endif
             endif
         endfor
+    elseif b:vichord_call_count % 2 == 0 && b:vichord_last_all_lines_get_count != b:vichord_call_count
+        let b:vichord_last_all_lines_get_count = b:vichord_call_count
+        let b:vichord_current_buffer_lines = map(getbufline(bufnr(), 1,"$"), 'substitute(v:val,''\v^[[:space:]]*'', '''', '''')')
     endif
 
     if a:findstart
