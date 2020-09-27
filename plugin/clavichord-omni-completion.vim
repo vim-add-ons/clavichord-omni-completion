@@ -85,10 +85,11 @@ function VimComplete(findstart, base)
         let b:vichord_last_all_lines_get_count = b:vichord_call_count
         let s:vichord_all_buffers_lines = []
         let b:vichord_current_buffer_lines = [] 
+        let curbuf = bufnr()
         for bufnum in uniq(extend([bufnr()],sort(g:vichord_vim_buffers)))
             if buflisted(bufnum)
                 "echom "Appending of" bufnum b:vichord_call_count
-                if bufnum == bufnr()
+                if bufnum == curbuf
                     let b:vichord_current_buffer_lines = map(getbufline(bufnum, 1,"$"), 'substitute(v:val,''\v^[[:space:]]*'', '''', '''')')
                     let s:vichord_all_buffers_lines += b:vichord_current_buffer_lines
                 else
